@@ -9,14 +9,14 @@ const userSchema = new mongoose.Schema({
     friends: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "User"
+            ref: "ChatUser"
         }
     ],
     friendRequests: [
         {
             fromUser: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: "User"
+                ref: "ChatUser"
             },
             createdAt: { type: Date, default: Date.now }
         }

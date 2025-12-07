@@ -32,6 +32,16 @@ export const login = async (req, res) => {
 
     res.json({ message: "Login successful", user });
 };
+
+// Send Friends
+export const SendFriends = async (req, res) => {
+    const { userId } = req.params;
+    console.log(userId)
+    const user = await User.findById(userId).populate("friends");
+
+    res.json(user.friends);
+};
+
 //Recomondations
 export const GetAlluser = async (req, res) => {
     const { _id } = req.params;
@@ -44,7 +54,7 @@ export const GetAlluser = async (req, res) => {
     }
 }
 
-//Find User
+//Find Friend 
 export const Finduser = async (req, res) => {
   const { gmail } = req.params;
  console.log(gmail)
@@ -60,4 +70,55 @@ export const Finduser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+//Send Friend Request 
+export const FriendRequest = async (req, res) => {
+    const { fromId, toId } = req.body;
+
+    const user = await User.findById(toId);
+    user.friendRequests.push({ fromUser: fromId });
+    await user.save();
+
+    res.json({ message: "Friend request sent" });
+};
+
+
+// Load Friends Request
+export const LoadFriendsRequest = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId)
+      .populate("friendRequests.fromUser", "name email profilePic");
+
+    res.json(user.friendRequests);
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+// Accept Friend Request
+export const AcceptRequest = async (req, res) => {
+    const { userId, requesterId } = req.body;
+
+    const user = await User.findById(userId);
+    const requester = await User.findById(requesterId);
+
+    // Add each other as friends
+    user.friends.push(requesterId);
+    requester.friends.push(userId);
+
+    // Remove the pending request
+    user.friendRequests = user.friendRequests.filter(
+        req => req.fromUser.toString() !== requesterId
+    );
+
+    await user.save();
+    await requester.save();
+
+    res.json({ message: "Accepted" });
 };
