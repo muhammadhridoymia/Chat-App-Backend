@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     isonline: { type: Boolean, default: false },
     profilePic: {String},
+    socketId: { type: String },
     friends: [
         {
             type: mongoose.Schema.Types.ObjectId,

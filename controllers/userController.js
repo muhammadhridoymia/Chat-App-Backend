@@ -19,6 +19,7 @@ export const signup = async (req, res) => {
 // Login controller
 export const login = async (req, res) => {
     const { email, password } = req.body;
+    console.log(email,password)
 
     const user = await User.findOne({ email });
 
@@ -30,16 +31,26 @@ export const login = async (req, res) => {
         return res.json({ message: "Incorrect password" });
     }
 
-    res.json({ message: "Login successful", user });
+    res.json({ message: "Login successful", user});
 };
 
 // Send Friends
 export const SendFriends = async (req, res) => {
     const { userId } = req.params;
     console.log(userId)
-    const user = await User.findById(userId).populate("friends");
-
-    res.json(user.friends);
+    try {
+        const user = await User.findById(userId).populate({
+            path: "friends",
+            select: "_id name isonline"
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.json(user.friends);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Something went wrong" });
+    }
 };
 
 //Recomondations
@@ -47,7 +58,7 @@ export const GetAlluser = async (req, res) => {
     const { _id } = req.params;
     console.log("User ID:",_id);
     try {
-        const users = await User.find({_id: { $ne: _id }}).select("-password");
+        const users = await User.find({_id: { $ne: _id }}).populate({select:"_id name isonline"});
         res.status(200).json(users);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -57,17 +68,20 @@ export const GetAlluser = async (req, res) => {
 //Find Friend 
 export const Finduser = async (req, res) => {
   const { gmail } = req.params;
- console.log(gmail)
+  console.log("Searching for email:", gmail);
+  
   try {
-    const user = await User.findOne({ email: gmail }).select("-password");
+    const user = await User.findOne({ email: gmail })
+        .select("_id name isonline profilePic email") 
+        .exec();
 
     if (!user) {
       return res.status(404).json({ message: "No User Found" });
     }
-
-    res.status(200).json({ users: user });
+    res.status(200).json({ user: user });
 
   } catch (error) {
+    console.error("Error finding user:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -88,10 +102,10 @@ export const FriendRequest = async (req, res) => {
 export const LoadFriendsRequest = async (req, res) => {
   try {
     const { userId } = req.params;
-
+    console.log("userid for load request",userId)
     const user = await User.findById(userId)
       .populate("friendRequests.fromUser", "name email profilePic");
-
+    console.log(user.friendRequests)
     res.json(user.friendRequests);
 
   } catch (error) {
