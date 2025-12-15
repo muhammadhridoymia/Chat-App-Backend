@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes.js";
 import Message from "./models/Message.js";
 import messageRoutes from "./routes/messageRoutes.js"
-import { Sendmessage,joinRoom ,OffLine} from "./socketControllers.js/sendMessage.js";
+import { Sendmessage,joinRoom ,OffLine,SendGroupMessage} from "./socketControllers.js/sendMessage.js";
+import groupRoutes from "./routes/GroupRoute.js";
 
 dotenv.config();
 
@@ -23,12 +24,10 @@ mongoose.connect(process.env.MONGO_URI)
 .catch(err => console.log(err));
 
 // Routes
+app.get("/", (req, res) => {res.send("Chat backend is running.");});
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
-app.get("/", (req, res) => {res.send("Chat backend is running.");});
-
-
-
+app.use("/api/users", groupRoutes);
 
 
 // Create HTTP server for socket.io
@@ -49,6 +48,8 @@ io.on("connection", (socket) => {
 
     // Send message to private room
     socket.on("sendMessage", Sendmessage(io))
+    // handle Group Messages
+    socket.on("sendGroupMessage", SendGroupMessage(io));
 
     socket.on("disconnect",OffLine(socket));
 });

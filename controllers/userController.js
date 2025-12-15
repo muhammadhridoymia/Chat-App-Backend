@@ -103,8 +103,8 @@ export const LoadFriendsRequest = async (req, res) => {
   try {
     const { userId } = req.params;
     console.log("userid for load request",userId)
-    const user = await User.findById(userId)
-      .populate("friendRequests.fromUser", "name email profilePic");
+    const user = await User.findById(userId).populate("friendRequests.fromUser", "name email profilePic");
+
     console.log(user.friendRequests)
     res.json(user.friendRequests);
 

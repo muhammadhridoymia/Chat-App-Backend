@@ -1,10 +1,11 @@
 // socketControllers/sendMessage.js
 import Message from "../models/Message.js";
 import User from "../models/user.js";
+import Group from "../models/Group.js";
+import GroupMessage from "../models/GroupMessages.js";
 
 
-
-
+//Send Friends Message
 export const Sendmessage = (io) => {
     return async (data) => {
         const { senderId, receiverId, message } = data;
@@ -26,8 +27,24 @@ export const Sendmessage = (io) => {
     }
 }
 
-
-
+//Send Group Message
+export const SendGroupMessage = (io) => {
+  return async (data) => {
+    const { senderId, groupId, message } = data;
+    console.log("data of group message sander:",senderId,groupId,message)
+  // Save message in DB
+  const msg = await GroupMessage.create({
+    senderId,
+    groupId,
+    message,
+  });
+  // Find group members
+  const group = await Group.findById(groupId);
+  group.members.forEach(memberId => {
+    io.to(memberId.toString()).emit("receiveGroupMessage", msg);
+  });
+};
+}
 
 //Join Room
     export const joinRoom = (socket) => {
@@ -41,9 +58,6 @@ export const Sendmessage = (io) => {
     });
     }
 }
-
-
-
 
 // Make user off line status
     export const OffLine = (socket) => {
