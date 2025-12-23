@@ -37,7 +37,7 @@ export const login = async (req, res) => {
 // Send Friends
 export const SendFriends = async (req, res) => {
     const { userId } = req.params;
-    console.log(userId)
+    console.log(userId,"this id friends sended");
     try {
         const user = await User.findById(userId).populate({
             path: "friends",

@@ -17,3 +17,21 @@ router.get("/:senderId/:receiverId", async (req, res) => {
 });
 
 export default router;
+
+router.post("/make/message/seen", async (req, res) => {
+  const { senderId, receiverId } = req.body;
+  console.log("Marking seen:", senderId, receiverId);
+
+  try {
+    const result = await Message.updateMany(
+      { senderId, receiverId, seen: false },
+      { $set: { seen: true } }
+    );
+
+    res.json({ success: true, modifiedCount: result.modifiedCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+

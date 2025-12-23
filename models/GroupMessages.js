@@ -10,6 +10,7 @@ const groupMessageSchema = new mongoose.Schema({
     ref: "User"
   },
   message: String,
+  seen:{type:Boolean,default:false},
 }, { timestamps: true });
 
 export default mongoose.model("GroupMessage", groupMessageSchema);

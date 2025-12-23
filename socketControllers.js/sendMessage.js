@@ -9,6 +9,7 @@ import GroupMessage from "../models/GroupMessages.js";
 export const Sendmessage = (io) => {
     return async (data) => {
         const { senderId, receiverId, message } = data;
+        console.log("sendMessage data:",data);
         console.log("data of message sander:",senderId,receiverId,message)
 
         if (!senderId || !receiverId || !message || message.trim() === "") return;

@@ -9,7 +9,7 @@ import Message from "./models/Message.js";
 import messageRoutes from "./routes/messageRoutes.js"
 import { Sendmessage,joinRoom ,OffLine,SendGroupMessage} from "./socketControllers.js/sendMessage.js";
 import groupRoutes from "./routes/GroupRoute.js";
-
+import Group from "./models/Group.js";
 dotenv.config();
 
 // Basic express setup
@@ -46,12 +46,51 @@ io.on("connection", (socket) => {
     // Join private room (use user ID as room name)
     socket.on("joinRoom",joinRoom(socket));
 
+      // Listen for chat opened
+  socket.on("chatOpened", async ({ senderId, receiverId }) => {
+    try {
+      const result = await Message.updateMany(
+        { senderId, receiverId, seen: false },
+        { $set: { seen: true } }
+      );
+
+      // Emit to sender that messages were seen
+      io.to(senderId).emit("messagesSeen", {receiver});
+    } catch (err) {
+      console.log(err);
+    }
+  });
+
     // Send message to private room
     socket.on("sendMessage", Sendmessage(io))
     // handle Group Messages
     socket.on("sendGroupMessage", SendGroupMessage(io));
 
     socket.on("disconnect",OffLine(socket));
+
+// Typing indicators
+    socket.on("typing", async (data) => {
+   const { senderId, receiverId, groupId, isGroupChat, isTyping } = data;
+
+    if (isGroupChat) {
+      // Send typing status to all group members except sender
+      Group.findById(groupId).then((group) => {
+        group.members.forEach((memberId) => {
+          if (memberId.toString() !== senderId) {
+            io.to(memberId.toString()).emit("typing", {
+              groupId,
+              senderId,
+              isTyping,
+              isGroupChat: true,
+            });
+          }
+        });
+      });
+    } else {
+      // Private chat typing
+      io.to(receiverId).emit("typing", { senderId, isTyping, isGroupChat: false });
+    }
+   })
 });
 
 
