@@ -10,6 +10,7 @@ import messageRoutes from "./routes/messageRoutes.js"
 import { Sendmessage,joinRoom ,OffLine,SendGroupMessage} from "./socketControllers.js/sendMessage.js";
 import groupRoutes from "./routes/GroupRoute.js";
 import Group from "./models/Group.js";
+import { FileUploader } from "./controllers/fileUploadControllers.js";
 dotenv.config();
 
 // Basic express setup
@@ -28,7 +29,7 @@ app.get("/", (req, res) => {res.send("Chat backend is running.");});
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", groupRoutes);
-
+app.use("/api/users",FileUploader)
 
 // Create HTTP server for socket.io
 const server = http.createServer(app);
@@ -49,13 +50,13 @@ io.on("connection", (socket) => {
       // Listen for chat opened
   socket.on("chatOpened", async ({ senderId, receiverId }) => {
     try {
-      const result = await Message.updateMany(
+       await Message.updateMany(
         { senderId, receiverId, seen: false },
         { $set: { seen: true } }
       );
 
       // Emit to sender that messages were seen
-      io.to(senderId).emit("messagesSeen", {receiver});
+      io.to(senderId).emit("messagesSeen", {receiverId});
     } catch (err) {
       console.log(err);
     }

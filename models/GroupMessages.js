@@ -1,16 +1,21 @@
 import mongoose from "mongoose";
+import { type } from "os";
 
-const groupMessageSchema = new mongoose.Schema({
-  groupId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Group"
+const groupMessageSchema = new mongoose.Schema(
+  {
+    groupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Group",
+    },
+    senderId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    message: { type: String, required: true },
+    img: [],
+    seen: { type: Boolean, default: false },
   },
-  senderId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
-  },
-  message: String,
-  seen:{type:Boolean,default:false},
-}, { timestamps: true });
+  { timestamps: true }
+);
 
 export default mongoose.model("GroupMessage", groupMessageSchema);
