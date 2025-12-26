@@ -8,14 +8,13 @@ import GroupMessage from "../models/GroupMessages.js";
 //Send Friends Message
 export const Sendmessage = (io) => {
     return async (data) => {
-        const { senderId, receiverId, message } = data;
+        const { senderId, receiverId, message,img } = data;
         console.log("sendMessage data:",data);
-        console.log("data of message sander:",senderId,receiverId,message)
 
         if (!senderId || !receiverId || !message || message.trim() === "") return;
 
         try {
-            const newMessage = new Message({ senderId, receiverId, message });
+            const newMessage = new Message({ senderId, receiverId, message,img });
             const saved = await newMessage.save();
 
             if (saved) {

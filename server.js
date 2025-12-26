@@ -10,7 +10,7 @@ import messageRoutes from "./routes/messageRoutes.js"
 import { Sendmessage,joinRoom ,OffLine,SendGroupMessage} from "./socketControllers.js/sendMessage.js";
 import groupRoutes from "./routes/GroupRoute.js";
 import Group from "./models/Group.js";
-import { FileUploader } from "./controllers/fileUploadControllers.js";
+import fileUploader from "./routes/fileUploadRoutes.js"
 dotenv.config();
 
 // Basic express setup
@@ -29,7 +29,7 @@ app.get("/", (req, res) => {res.send("Chat backend is running.");});
 app.use("/api/users", userRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", groupRoutes);
-app.use("/api/users",FileUploader)
+app.use("/api/users",fileUploader)
 
 // Create HTTP server for socket.io
 const server = http.createServer(app);

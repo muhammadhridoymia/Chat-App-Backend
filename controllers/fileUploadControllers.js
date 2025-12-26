@@ -1,31 +1,34 @@
+import { v2 as cloudinary } from "cloudinary";
 
-const cloudinary = require('cloudinary').v2;
-
-
-// Upload endpoint
-export const FileUploader= async (req, res) => {
+export const FileUploader = async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: "No files uploaded, try again" });
     }
 
-    // Upload to Cloudinary
-    const streamUpload = (fileBuffer) => {
+    // Function to upload single file via stream
+    const streamUpload = (file) => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: 'chatimg' }, 
+          { folder: "chatimg" },
           (error, result) => {
             if (result) resolve(result);
             else reject(error);
           }
         );
-        stream.end(fileBuffer);
+        stream.end(file.buffer);
       });
     };
 
-    const result = await streamUpload(req.file.buffer);
-    res.json({ url: result.secure_url });
+    // Upload all files
+    const uploadResults = await Promise.all(req.files.map(file => streamUpload(file)));
+    const urls = uploadResults.map(r => r.secure_url);
+
+    console.log("Uploaded URLs:", urls); 
+    res.json({ urls });  
+
   } catch (error) {
+    console.log(error);
     res.status(500).json({ error: error.message });
   }
 };
