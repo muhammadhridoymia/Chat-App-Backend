@@ -11,8 +11,9 @@ const groupMessageSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
-    message: { type: String, required: true },
+    message: { type: String },
     img: [],
+    voice: { type: String },
     seen: { type: Boolean, default: false },
   },
   { timestamps: true }

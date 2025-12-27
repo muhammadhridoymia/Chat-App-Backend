@@ -8,14 +8,14 @@ import GroupMessage from "../models/GroupMessages.js";
 //Send Friends Message
 export const Sendmessage = (io) => {
     return async (data) => {
-        const { senderId, receiverId, message,img } = data;
-        console.log("sendMessage data:",data);
+        const { senderId, receiverId, message,img ,voice} = data;
 
-        if (!senderId || !receiverId || !message || message.trim() === "") return;
+        if (!senderId || !receiverId ) return;
 
         try {
-            const newMessage = new Message({ senderId, receiverId, message,img });
+            const newMessage = new Message({ senderId, receiverId, message,img,voice});
             const saved = await newMessage.save();
+            console.log("saved messages:",saved)
 
             if (saved) {
                 // Emit only to sender and receiver
@@ -30,13 +30,15 @@ export const Sendmessage = (io) => {
 //Send Group Message
 export const SendGroupMessage = (io) => {
   return async (data) => {
-    const { senderId, groupId, message } = data;
+    const { senderId, groupId, message,img,voice} = data;
     console.log("data of group message sander:",senderId,groupId,message)
   // Save message in DB
   const msg = await GroupMessage.create({
     senderId,
     groupId,
     message,
+    img,
+    voice,
   });
   // Find group members
   const group = await Group.findById(groupId);

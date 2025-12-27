@@ -47,6 +47,36 @@ io.on("connection", (socket) => {
     // Join private room (use user ID as room name)
     socket.on("joinRoom",joinRoom(socket));
 
+
+
+
+
+    io.on("connection", (socket) => {
+
+  socket.on("call-user", ({ from, to }) => {
+    io.to(to).emit("incoming-call", { from });
+  });
+
+  socket.on("accept-call", ({ to }) => {
+    io.to(to).emit("call-accepted");
+  });
+
+  socket.on("reject-call", ({ to }) => {
+    io.to(to).emit("call-rejected");
+  });
+
+  socket.on("end-call", ({ to }) => {
+    io.to(to).emit("call-ended");
+  });
+
+});
+
+
+
+
+
+
+
       // Listen for chat opened
   socket.on("chatOpened", async ({ senderId, receiverId }) => {
     try {
