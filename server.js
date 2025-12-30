@@ -102,9 +102,7 @@ io.on("connection", (socket) => {
 // Typing indicators
     socket.on("typing", async (data) => {
    const { senderId, receiverId, groupId, isGroupChat, isTyping } = data;
-
     if (isGroupChat) {
-      // Send typing status to all group members except sender
       Group.findById(groupId).then((group) => {
         group.members.forEach((memberId) => {
           if (memberId.toString() !== senderId) {
