@@ -55,19 +55,25 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", joinRoom(socket));
 
   //Voice Call
-    socket.on("call-user", ({ to, from }) => {
-    io.to(to).emit("incoming-call", { from });
+    socket.on("call-user", ({ to,from,offer }) => {
+    io.to(to).emit("incoming-call", {from ,offer});
   });
 
-  socket.on("accept-call", ({ to }) => {
-    io.to(to).emit("call-accepted");
+  socket.on("accept-call", ({ to ,answer}) => {
+    io.to(to).emit("call-accepted",{answer});
   });
 
   socket.on("reject-call", ({ to }) => {
     io.to(to).emit("call-rejected");
   });
-  socket.on("call-cancle",({to})=>{
-    io.to(to).emit("cancled")
+
+  socket.on("call-cancel",({to})=>{
+    io.to(to).emit("canceled")
+  })
+
+  socket.on("ice-candidate",({to,candidate})=>{
+    console.log("Ice-candidate :",to ,candidate)
+    io.to(to).emit("ice-candidate",{candidate})
   })
 
 
